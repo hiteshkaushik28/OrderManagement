@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class ProductServiceImpl implements ProductService {
@@ -18,9 +19,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getProductById(Long id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No product has Id " + id));
+    public Optional<Product> getProductById(Long id) {
+        return productRepository.findById(id);
     }
 
     @Override
@@ -29,9 +29,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(Product product, Long id) {
-        Product matchedProduct = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No product has Id " + id));
-        return productRepository.save(new Product(id, product.getName(), product.getPrice()));
+    public Optional<Product> updateProduct(Product product, Long id) {
+        Optional<Product> res = productRepository.findById(id);
+        if (res.isEmpty()) return Optional.empty();
+        return Optional.of(productRepository.save(new Product(id, product.getName(), product.getPrice())));
     }
 }

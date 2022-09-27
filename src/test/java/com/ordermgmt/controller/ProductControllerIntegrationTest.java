@@ -64,7 +64,11 @@ public class ProductControllerIntegrationTest {
         List<Product> all = productRepository.findAll();
         int expected = all.size();
 
-        ResultActions resultActions = this.mockMvc.perform(get("/products")).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$").isArray()).andExpect(jsonPath("$.length()").value(expected));
+        ResultActions resultActions = this.mockMvc.perform(get("/products"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(expected));
 
         String jsonString = resultActions.andReturn().getResponse().getContentAsString();
 
@@ -74,7 +78,9 @@ public class ProductControllerIntegrationTest {
         List<Product> newProduct = mapper.readValue(jsonString, new TypeReference<>() {
         });
 
-        Optional<Product> optInitialProduct = newProduct.stream().filter(product -> product.getId() == this.firstProduct.getId()).findFirst();
+        Optional<Product> optInitialProduct = newProduct.stream()
+                .filter(product -> product.getId() == this.firstProduct.getId())
+                .findFirst();
 
         if (optInitialProduct.isEmpty()) {
             throw new AssertionError("First product should be present");
@@ -92,7 +98,12 @@ public class ProductControllerIntegrationTest {
         String newProdName = "New Product";
         String prodJson = ow.writeValueAsString(new Product(newProdName));
 
-        ResultActions resultActions = this.mockMvc.perform(post("/products").contentType(APPLICATION_JSON).content(prodJson)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.name").value(newProdName));
+        ResultActions resultActions = this.mockMvc.perform(post("/products")
+                        .contentType(APPLICATION_JSON)
+                        .content(prodJson))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(newProdName));
 
         MvcResult result = resultActions.andReturn();
         String contentAsString = result.getResponse().getContentAsString();
@@ -110,12 +121,38 @@ public class ProductControllerIntegrationTest {
 
     @Test
     public void shouldUpdateAnExistingProduct() throws Exception {
-
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
         String newProdName = "New Product";
         String prodJson = ow.writeValueAsString(new Product(newProdName));
 
-        this.mockMvc.perform(put("/products/" + firstProduct.getId()).contentType(APPLICATION_JSON).content(prodJson)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.name").value(newProdName)).andExpect(jsonPath("$.id").value(firstProduct.getId()));
+        this.mockMvc.perform(put("/product/" + firstProduct.getId())
+                        .contentType(APPLICATION_JSON)
+                        .content(prodJson))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(newProdName))
+                .andExpect(jsonPath("$.id").value(firstProduct.getId()));
+    }
+
+    @Test
+    public void shouldUpdateAnExistingProductInvalidId() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        String newProdName = "New Product";
+        String prodJson = ow.writeValueAsString(new Product(newProdName));
+
+        this.mockMvc.perform(put("/product/" + 100)
+                        .contentType(APPLICATION_JSON)
+                        .content(prodJson))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetProductByIdInvalidId() throws Exception {
+        this.mockMvc.perform(get("/product/" + 100))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

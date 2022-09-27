@@ -41,8 +41,11 @@ public class ProductController {
     }
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<Object> getProductById(@ApiParam(value = "The ID of the product to be updated", required = true, example = "1") @PathVariable long id) {
-        return new ResponseEntity<>(productService.getProductById(id), HttpStatus.OK);
+    public ResponseEntity<Object> getProductById(@ApiParam(value = "The ID of the product", required = true, example = "1") @PathVariable long id) {
+        var res = productService.getProductById(id);
+        if (res.isEmpty())
+            return new ResponseEntity<>("No product exists with id " + id, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(res.get(), HttpStatus.OK);
     }
 
     @PostMapping("/products")
@@ -50,9 +53,12 @@ public class ProductController {
         return new ResponseEntity<>(productService.addProduct(newProduct), HttpStatus.OK);
     }
 
-    @PutMapping("/products/{id}")
+    @PutMapping("/product/{id}")
     public ResponseEntity<Object> updateProduct(@RequestBody Product updatedProduct, @ApiParam(value = "The ID of the product to be updated", required = true, example = "1") @PathVariable long id) {
-        return new ResponseEntity<>(productService.updateProduct(updatedProduct, id), HttpStatus.OK);
+        var res = productService.updateProduct(updatedProduct, id);
+        if (res.isEmpty())
+            return new ResponseEntity<>("No product exists with id " + id, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(res.get(), HttpStatus.OK);
     }
 
 }
