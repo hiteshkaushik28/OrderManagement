@@ -4,5 +4,6 @@
   - H2 for persistence
   - Gradle for build
 ## Usage
+- Execute `./gradlew clean build` for build.
 - Execute `./gradlew bootrun` inside `/OrderManagement`.
 - Once started, head over to http://localhost:8080/order-management/swagger-ui.html#/ to try out the APIs
